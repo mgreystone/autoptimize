@@ -191,6 +191,7 @@ function autoptimize_start_buffering() {
 				@include(plugin_dir_path(__FILE__).'classes/external/php/yui-php-cssmin-2.4.8-4.php');
 			}
 		}
+		@include(plugin_dir_path(__FILE__).'classes/external/php/Splitter.php');
 		define('COMPRESS_CSS',false);
 	}
 			

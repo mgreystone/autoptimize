@@ -165,15 +165,15 @@ class autoptimizeStyles extends autoptimizeBase {
 			
 			foreach($media as $elem) {
 				if(!isset($this->csscode[$elem]))
-					$this->csscode[$elem] = '';
-				$this->csscode[$elem] .= "\n/*FILESTART*/".$css;
+					$this->csscode[$elem] = array('');
+				$this->csscode[$elem][0] .= "\n/*FILESTART*/".$css;
 			}
 		}
 		
 		// Check for duplicate code
 		$md5list = array();
 		$tmpcss = $this->csscode;
-		foreach($tmpcss as $media => $code) {
+		foreach($tmpcss as $media => $allCode) foreach ($allCode as $code) {
 			$md5sum = md5($code);
 			$medianame = $media;
 			foreach($md5list as $med => $sum) {
@@ -192,7 +192,7 @@ class autoptimizeStyles extends autoptimizeBase {
 		unset($tmpcss);
 		
 		// Manage @imports, while is for recursive import management
-		foreach ($this->csscode as &$thiscss) {
+		foreach ($this->csscode as &$allCode) foreach ($allCode as &$thiscss) {
 			// Flag to trigger import reconstitution and var to hold external imports
 			$fiximports = false;
 			$external_imports = "";
@@ -237,11 +237,27 @@ class autoptimizeStyles extends autoptimizeBase {
 				$thiscss=$external_imports.$thiscss;
 			}
 		}
+		unset($allCode);
 		unset($thiscss);
 		
-		// $this->csscode has all the uncompressed code now. 
+		// $this->csscode has all the uncompressed code now.
+
+		$splitter = new \CssSplitter\Splitter();
+		$tmp = array();
+		foreach ($this->csscode as $media => $allCode) {
+			$tmp[$media] = array();
+			foreach ($allCode as $code) {
+				$numSections = ceil($splitter->countSelectors($code) / 4095);
+				for ($i = 1; $i <= $numSections; $i++) {
+					$tmp[$media][] = $splitter->split($code, $i);
+				}
+			}
+		}
+		$this->csscode = $tmp;
+		unset($tmp);
+
 		$mhtmlcount = 0;
-		foreach($this->csscode as &$code) {
+		foreach($this->csscode as &$allCode) foreach ($allCode as &$code) {
 			// Check for already-minified code
 			$hash = md5($code);
 			$ccheck = new autoptimizeCache($hash,'css');
@@ -373,6 +389,7 @@ class autoptimizeStyles extends autoptimizeBase {
 			
 			$this->hashmap[md5($code)] = $hash;
 		}
+		unset($allCode);
 		unset($code);
 		return true;
 	}
@@ -392,7 +409,7 @@ class autoptimizeStyles extends autoptimizeBase {
 		}
 		
 		// CSS cache
-		foreach($this->csscode as $media => $code) {
+		foreach($this->csscode as $media => $allCode) foreach ($allCode as $code) {
 			$md5 = $this->hashmap[md5($code)];
 
 			if($this->datauris)	{
@@ -405,7 +422,10 @@ class autoptimizeStyles extends autoptimizeBase {
 				// Cache our code
 				$cache->cache($code,'text/css');
 			}
-			$this->url[$media] = AUTOPTIMIZE_CACHE_URL.$cache->getname();
+			if (!array_key_exists($media, $this->url)) {
+				$this->url[$media] = array();
+			}
+			$this->url[$media][] = AUTOPTIMIZE_CACHE_URL.$cache->getname();
 		}
 	}
 	
@@ -443,7 +463,7 @@ class autoptimizeStyles extends autoptimizeBase {
 		$replaceTag = apply_filters( 'autoptimize_filter_css_replacetag', $replaceTag );
 
 		if ($this->inline == true) {
-			foreach($this->csscode as $media => $code) {
+			foreach($this->csscode as $media => $allCode) foreach ($allCode as $code) {
 				$this->inject_in_html('<style type="text/css" media="'.$media.'">'.$code.'</style>',$replaceTag);
 			}
 		} else {
@@ -478,7 +498,7 @@ class autoptimizeStyles extends autoptimizeBase {
 				}
 			}
 
-			foreach($this->url as $media => $url) {
+			foreach($this->url as $media => $allUrls) foreach ($allUrls as $url) {
 				$url = $this->url_replace_cdn($url);
 				
 				//Add the stylesheet either deferred (import at bottom) or normal links in head
