@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: Autoptimize
-Plugin URI: http://blog.futtta.be/autoptimize
+Plugin Name: Autoptimize (Greystone Fork)
+Plugin URI: https://github.com/mgreystone/autoptimize
 Description: Optimizes your website, concatenating the CSS and JavaScript code, and compressing it.
 Version: 1.9.4
 Author: Frank Goossens (futtta)

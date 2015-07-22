@@ -1,10 +1,12 @@
 === Autoptimize ===
-Contributors: futtta, turl
+Contributors: futtta, turl, mgreystone
 Tags: css, html, javascript, js, optimize, speed, cache, data-uri, aggregate, minimize, minification, performance, pagespeed, booster, multisite
 Donate link: http://blog.futtta.be/2013/10/21/do-not-donate-to-me/
 Requires at least: 2.7
 Tested up to: 4.2
 Stable tag: 1.9.4
+
+Fork of https://github.com/futtta/autoptimize. All credit goes to futtta.
 
 Autoptimize speeds up your website and helps you save bandwidth by aggregating and minimizing JS, CSS and HTML.
 
@@ -17,11 +19,7 @@ If you consider performance important, you really should use a caching-plugin su
 
 == Installation ==
 
-Just install from your WordPress "Plugins > Add New" screen and all will be well. Manual installation is very straightforward as well:
-
-1. Upload the zip file and unzip it in the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go to `Settings > Autoptimize` and enable the options you want. Generally this means "Optimize HTML/ CSS/ JavaScript".
+Clone https://github.com/mgreystone/autoptimize into wp-content/plugins.
 
 == Frequently Asked Questions ==
 
@@ -165,6 +163,7 @@ Just [fork Autoptimize on Github](https://github.com/futtta/autoptimize) and cod
 == Changelog ==
 
 = 1.9.4 =
+* Split stylesheets based on IE legacy limits.
 * bugfix: make sure non-AO CSSmin doesn't get fed 2 parameters (as some only expect one, which resulted in an internal server error), based on [feedback from zerooverture and zamba](https://wordpress.org/support/topic/error-code-500internal-server-error?replies=7)
 * bugfix: make default add_action hook back into "template_redirect" instead of "init" to fix multiple problems as reported by [schecteracademicservices, bond138, rickenbacker](https://wordpress.org/support/topic/192-concatenated-js-but-193-does-not-for-me?replies=11), [Rick Sportel](https://wordpress.org/support/topic/version-193-made-plugin-wp-cdn-rewrite-crash?replies=3#post-6833159) and [wizray](https://wordpress.org/support/topic/the-page-loads-both-the-auto-combined-css-file-and-origin-raw-file?replies=11#post-6833146). If you do need Autoptimize to initialize earlier (e.g. when using Nextgen Galleries), then add this to your wp-config.php:
 `define("AUTOPTIMIZE_INIT_EARLIER","true");`
